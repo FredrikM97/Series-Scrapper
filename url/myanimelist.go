@@ -1,4 +1,4 @@
-package myanimelist
+package url
 
 import (
 	"fmt"
