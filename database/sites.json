@@ -2,15 +2,16 @@
     "sites": [
         {
         "name":"myanimelist",
-        "url":"https://myanimelist.net/",
-        "genre":[
-            "all",
-            "Action",
-            "Adventure",
-            "Drama",
-            "Comedy",
-            "Slice of Life"
-        ]
+        "url":"https://myanimelist.net/search/",
+        "search": "*genre*?q=",
+        "genre":{
+            "0":"all",
+            "1":"Action",
+            "2":"Adventure",
+            "3":"Drama",
+            "4":"Comedy",
+            "5":"Slice of Life"
+        }
         }
     ]
 }
