@@ -1,0 +1,14 @@
+{
+    "strings":{
+        "name": ["name", "", "Write a name of series"],
+        "seasonal":["seasonal", "", "Format: <SEASON> <YEAR>, blank gives the current season"],
+        "url":[]
+    },
+    "bools":{
+        "score":["score", false, "Get score of series"], 
+        "rank":["rank", false, "Get rank of series"], 
+        "episodes":["Episodes", false, "Get number of episodes"], 
+        "info":["info", false, "Get information of series"],
+        "aired":["aired", false, "Get aired date of series"] 
+    }
+}
