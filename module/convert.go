@@ -2,7 +2,7 @@ package module
 
 import "strings"
 
-func address2string(address []string) string {
+func Address2string(address []string) string {
 	/*
 		Extract name from list to string and remove parameters that shouldnt be included
 		Params:	[]string
