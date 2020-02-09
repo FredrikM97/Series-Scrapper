@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func json_handler(db string, data interface{}) interface{} {
+func Json_handler(db string, data interface{}) interface{} {
 	/*
 		Import data from database
 	*/

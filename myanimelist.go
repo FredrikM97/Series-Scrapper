@@ -5,7 +5,7 @@ import (
 	"regexp"
 )
 
-func search_MAL(search_url string) bool {
+func Search_MAL(search_url string) bool {
 	/*
 		Search for series on MAL
 		Params: string
@@ -13,7 +13,7 @@ func search_MAL(search_url string) bool {
 		* bool: No found-> false
 		* string:
 	*/
-	data_response, err := getContent(search_url)
+	data_response, err := GetContent(search_url)
 	if err {
 		return false
 	}
@@ -33,7 +33,7 @@ func search_MAL(search_url string) bool {
 
 	// Fix series name and check if they same as requested name
 	for index, serie_info := range result_addresses {
-		name := address2string(serie_info)
+		name := Address2string(serie_info)
 
 		if name == command_map.name {
 			command_map.url = serie_info[0]
@@ -41,7 +41,7 @@ func search_MAL(search_url string) bool {
 		}
 		seriesMap[name] = index
 	}
-	sorted_map := sort_on_keyValue(seriesMap)
+	sorted_map := Sort_on_keyValue(seriesMap)
 
 	// If series not found, recommend similar series
 	if command_map.url == "" {

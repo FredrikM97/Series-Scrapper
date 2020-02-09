@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func getContent(url string) (string, bool) {
+func GetContent(url string) (string, bool) {
 	/*
 		Get content on page
 		@Params

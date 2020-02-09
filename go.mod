@@ -1,4 +1,4 @@
-module github.com/FredriM97/Series-Scrapper
+module Series-Scrapper
 
 go 1.13
 

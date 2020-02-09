@@ -39,7 +39,7 @@ var DATABASE = "database/"
 var command_map = new(Commands)
 var sites Sites
 var available_sites = map[string]Map2func{
-	"myanimelist": search_MAL,
+	"myanimelist": Search_MAL,
 }
 
 func main() {
@@ -49,7 +49,7 @@ func main() {
 	fmt.Println("Starting system!")
 	setFlags()
 
-	data := json_handler(DATABASE+"sites.json", sites)
+	data := Json_handler(DATABASE+"sites.json", sites)
 	mapstructure.Decode(data, &sites)
 
 	print_db(sites)
@@ -151,23 +151,4 @@ func Search(site Site) bool {
 	search_url := site.Url + search + strings.ToLower(command_map.name)
 	return available_sites[site.Name](search_url)
 
-}
-
-func Address2string(address []string) string {
-	/*
-		Extract name from list to string and remove parameters that shouldnt be included
-		Params:	[]string
-		Return: string
-	*/
-	r := strings.NewReplacer("_", " ", "  ", " ")
-	serie_address := address[1]
-	old_address := ""
-
-	for old_address != serie_address {
-		old_address = serie_address
-		serie_address = r.Replace(serie_address)
-	}
-
-	serie_address = strings.ToLower(serie_address)
-	return serie_address
 }
