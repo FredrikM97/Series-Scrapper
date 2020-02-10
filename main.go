@@ -13,9 +13,12 @@ import (
 Structs
 */
 type Commands struct {
-	name, seasonal, url                string
-	genre                              string
-	score, rank, episodes, info, aired bool
+	name, seasonal, url, genre, top         string
+	score, rank, episodes, info, aired, top bool
+}
+type results struct {
+	seasonal, genre                    []string
+	score, rank, episodes, info, aired string
 }
 
 type Sites struct {
@@ -57,12 +60,13 @@ func main() {
 	// Check input
 	if command_map.name != "" {
 		bool_check := checkParams()
+
 		if bool_check {
 			site := sites.Sites[0] // TODO: Change so we check all availbile sites
 			success := Search(site)
 
 			if success {
-
+				getparameterValues(enabledParams)
 			}
 
 		}
@@ -77,6 +81,7 @@ func checkParams() bool {
 
 		@Return: bool
 	*/
+	paramExists := false
 	r := reflect.ValueOf(command_map).Elem()
 	for i := 0; i < r.NumField(); i++ {
 
@@ -84,10 +89,18 @@ func checkParams() bool {
 		f := r.Field(i)
 
 		if f.Kind() == reflect.Bool && reflect.ValueOf(true).Bool() == f.Bool() {
-			return true
+			paramExists = true
+			continue
 		}
 	}
-	return false
+	return paramExists
+}
+func getparameterValues(enabledParams []bool) {
+	//score, rank, episodes, info, aired
+	for _, item := range enabledParams {
+		fmt.Println(item)
+
+	}
 }
 func setFlags() {
 	/*
