@@ -9,14 +9,14 @@ func Address2string(address []string) string {
 		Return: string
 	*/
 	r := strings.NewReplacer("_", " ", "  ", " ")
-	serie_address := address[1]
-	old_address := ""
+	serieAddress := address[1]
+	oldAddress := ""
 
-	for old_address != serie_address {
-		old_address = serie_address
-		serie_address = r.Replace(serie_address)
+	for oldAddress != serieAddress {
+		oldAddress = serieAddress
+		serieAddress = r.Replace(serieAddress)
 	}
 
-	serie_address = strings.ToLower(serie_address)
-	return serie_address
+	serieAddress = strings.ToLower(serieAddress)
+	return serieAddress
 }

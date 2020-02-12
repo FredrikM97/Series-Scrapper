@@ -17,16 +17,16 @@ func GetContent(url string) (string, bool) {
 		* bool: if true: Error
 	*/
 
-	data_response, err := http.Get(url)
+	resp, err := http.Get(url)
 
 	if err != nil {
 		fmt.Println("Error: Could not fetch page!")
 		return "", true
 	}
-	defer data_response.Body.Close()
+	defer resp.Body.Close()
 
-	body_content, err := ioutil.ReadAll(data_response.Body)
-	body_content2string := string(body_content)
+	body, err := ioutil.ReadAll(resp.Body)
+	body2string := string(body)
 
-	return body_content2string, false
+	return body2string, false
 }

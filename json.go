@@ -7,20 +7,20 @@ import (
 	"os"
 )
 
-func Json_handler(db string, data interface{}) interface{} {
+func JSONHandler(db string, data interface{}) interface{} {
 	/*
 		Import data from database
 	*/
 
-	db_file, err := os.Open(db)
+	file, err := os.Open(db)
 
 	if err != nil {
 		fmt.Print(err)
 	}
 	fmt.Println("Successfully opened " + db)
-	defer db_file.Close()
+	defer file.Close()
 
-	byteValue, _ := ioutil.ReadAll(db_file)
+	byteValue, _ := ioutil.ReadAll(file)
 
 	json.Unmarshal(byteValue, &data)
 

@@ -13,37 +13,38 @@ import (
 Structs
 */
 type Commands struct {
-	name, seasonal, url, genre, top         string
+	name, seasonal, url, genre              string
 	score, rank, episodes, info, aired, top bool
 }
 type results struct {
-	seasonal, genre                    []string
+	seasonal, genre, top               []string
 	score, rank, episodes, info, aired string
 }
 
-type Sites struct {
-	Sites []Site `json:"sites"`
+type sites struct {
+	Sites []site `json:"sites"`
 }
 
-type Site struct {
+type site struct {
 	Name   string            `json:"name"`
-	Url    string            `json:"url"`
+	URL    string            `json:"url"`
 	Search string            `json:"search"`
 	Genre  map[string]string `json:"genre"`
 }
 
 // Convert map value to function, return bool
-type Map2func func(string) bool
 
 /*
 Global var
 */
 var DATABASE = "database/"
-var command_map = new(Commands)
-var sites Sites
-var available_sites = map[string]Map2func{
-	"myanimelist": Search_MAL,
+var commandMap = new(Commands)
+var sitesInfo sites
+var sitesAvailable = map[string]Map2func{
+	"myanimelist": SearchMAL,
 }
+
+type Map2func func(string) bool
 
 func main() {
 	/*
@@ -52,25 +53,27 @@ func main() {
 	fmt.Println("Starting system!")
 	setFlags()
 
-	data := Json_handler(DATABASE+"sites.json", sites)
-	mapstructure.Decode(data, &sites)
+	data := JSONHandler(DATABASE+"sites.json", sitesInfo)
+	mapstructure.Decode(data, &sitesInfo)
 
-	print_db(sites)
-
+	printDB(sitesInfo)
+	fmt.Println("derp1")
 	// Check input
-	if command_map.name != "" {
-		bool_check := checkParams()
+	if commandMap.name != "" {
+		check := checkParams()
 
-		if bool_check {
-			site := sites.Sites[0] // TODO: Change so we check all availbile sites
+		if check {
+			fmt.Println("derp2")
+			site := sitesInfo.Sites[0] // TODO: Change so we check all availbile sites
 			success := Search(site)
+			fmt.Println("The check was:", success)
 
 			if success {
-				getparameterValues(enabledParams)
+				//getparameterValues(enabledParams)
 			}
 
 		}
-	} else if command_map.seasonal != "" {
+	} else if commandMap.seasonal != "" {
 
 	}
 }
@@ -82,20 +85,25 @@ func checkParams() bool {
 		@Return: bool
 	*/
 	paramExists := false
-	r := reflect.ValueOf(command_map).Elem()
+	r := reflect.ValueOf(commandMap).Elem()
 	for i := 0; i < r.NumField(); i++ {
 
 		//Get value of param
 		f := r.Field(i)
-
+		fmt.Println(paramExists)
 		if f.Kind() == reflect.Bool && reflect.ValueOf(true).Bool() == f.Bool() {
 			paramExists = true
+
 			continue
 		}
+
 	}
 	return paramExists
 }
 func getparameterValues(enabledParams []bool) {
+	/*
+		Get data for parameters
+	*/
 	//score, rank, episodes, info, aired
 	for _, item := range enabledParams {
 		fmt.Println(item)
@@ -107,26 +115,26 @@ func setFlags() {
 		Handles params for shell, TODO: Fix so commands stay in database instead (easier to organize)
 	*/
 
-	flag.StringVar(&command_map.name, "name", "", "Write a name of series")
-	flag.StringVar(&command_map.seasonal, "seasonal", "", "Format: <SEASON> <YEAR>, blank gives the current season")
-	flag.BoolVar(&command_map.score, "score", false, "Get score of series")
-	flag.BoolVar(&command_map.rank, "rank", false, "Get rank of series")
-	flag.BoolVar(&command_map.episodes, "episodes", false, "Get number of episodes")
-	flag.BoolVar(&command_map.info, "info", false, "Get information of series")
-	flag.BoolVar(&command_map.aired, "aired", false, "Get aired date of series")
+	flag.StringVar(&commandMap.name, "name", "", "Write a name of series")
+	flag.StringVar(&commandMap.seasonal, "seasonal", "", "Format: <SEASON> <YEAR>, blank gives the current season")
+	flag.BoolVar(&commandMap.score, "score", false, "Get score of series")
+	flag.BoolVar(&commandMap.rank, "rank", false, "Get rank of series")
+	flag.BoolVar(&commandMap.episodes, "episodes", false, "Get number of episodes")
+	flag.BoolVar(&commandMap.info, "info", false, "Get information of series")
+	flag.BoolVar(&commandMap.aired, "aired", false, "Get aired date of series")
 
 	flag.Parse()
 }
 
-func print_db(sites Sites) {
+func printDB(sitesInfo sites) {
 	/*
 		Print info from the database
 	*/
 	fmt.Println("Sites:")
-	for i := 0; i < len(sites.Sites); i++ {
-		fmt.Println("Name: " + sites.Sites[i].Name)
-		fmt.Println("Url: " + sites.Sites[i].Url)
-		fmt.Println("Genres: " + fmt.Sprint(sites.Sites[i].Genre))
+	for i := 0; i < len(sitesInfo.Sites); i++ {
+		fmt.Println("Name: " + sitesInfo.Sites[i].Name)
+		fmt.Println("Url: " + sitesInfo.Sites[i].URL)
+		fmt.Println("Genres: " + fmt.Sprint(sitesInfo.Sites[i].Genre))
 	}
 }
 
@@ -141,27 +149,27 @@ func getDetails() {
 
 }
 
-func Search(site Site) bool {
+func Search(siteInfo site) bool {
 	/*
 		Search on site based on parameters from shell
 		TODO: Should check if parameters is given or not too
 	*/
 	// TODO: Handle multiple different sites
 
-	if _, ok := available_sites[site.Name]; !ok {
+	if _, ok := sitesAvailable[siteInfo.Name]; !ok {
 		return false
 	}
 
 	var genre string
-	if val, ok := site.Genre[command_map.genre]; ok {
-		genre = site.Genre[val]
+	if val, ok := siteInfo.Genre[commandMap.genre]; ok {
+		genre = siteInfo.Genre[val]
 	} else {
-		genre = site.Genre["0"]
+		genre = siteInfo.Genre["0"]
 	}
 	r := strings.NewReplacer("*genre*", genre)
-	search := r.Replace(site.Search)
+	search := r.Replace(siteInfo.Search)
 
-	search_url := site.Url + search + strings.ToLower(command_map.name)
-	return available_sites[site.Name](search_url)
+	searchURL := siteInfo.URL + search + strings.ToLower(commandMap.name)
+	return sitesAvailable[siteInfo.Name](searchURL)
 
 }
