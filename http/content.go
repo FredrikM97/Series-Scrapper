@@ -3,7 +3,7 @@ package http
 import (
 	"fmt"
 	"io/ioutil"
-	"net/http"
+	httpImp "net/http"
 )
 
 func GetContent(url string) (string, bool) {
@@ -17,7 +17,7 @@ func GetContent(url string) (string, bool) {
 		* bool: if true: Error
 	*/
 
-	resp, err := http.Get(url)
+	resp, err := httpImp.Get(url)
 
 	if err != nil {
 		fmt.Println("Error: Could not fetch page!")

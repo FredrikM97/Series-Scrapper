@@ -41,13 +41,15 @@ type Map2func func(string) bool
 /*
 Global var
 */
-var DATABASE = "database/"
-var commandMap = new(commands)
-var resultMap = new(results)
-var sitesInfo sites
+const DATABASE = "database/"
+
 var sitesAvailable = map[string]Map2func{
 	"myanimelist": url.SearchMAL,
 }
+
+var CommandMap = new(commands)
+var resultMap = new(results)
+var sitesInfo sites
 
 func main() {
 	/*
@@ -61,9 +63,9 @@ func main() {
 
 	printDB(sitesInfo)
 	// Check input
-	if commandMap.name != "" {
+	if CommandMap.name != "" {
 		check := checkParams()
-		fmt.Println("Is dis true=", commandMap.name)
+		fmt.Println("Is dis true=", CommandMap.name)
 		if check {
 			site := sitesInfo.Sites[0] // TODO: Change so we check all availbile sites
 			success := Search(site)
@@ -72,7 +74,7 @@ func main() {
 			}
 
 		}
-	} else if commandMap.seasonal != "" {
+	} else if CommandMap.seasonal != "" {
 
 	}
 }
@@ -84,7 +86,7 @@ func checkParams() bool {
 		@Return: bool
 	*/
 	paramExists := false
-	r := reflect.ValueOf(commandMap).Elem()
+	r := reflect.ValueOf(CommandMap).Elem()
 	for i := 0; i < r.NumField(); i++ {
 
 		//Get value of param
@@ -112,13 +114,13 @@ func setFlags() {
 		Handles params for shell, TODO: Fix so commands stay in database instead (easier to organize)
 	*/
 
-	flag.StringVar(&commandMap.name, "name", "", "Write a name of series")
-	flag.StringVar(&commandMap.seasonal, "seasonal", "", "Format: <SEASON> <YEAR>, blank gives the current season")
-	flag.BoolVar(&commandMap.score, "score", false, "Get score of series")
-	flag.BoolVar(&commandMap.rank, "rank", false, "Get rank of series")
-	flag.BoolVar(&commandMap.episodes, "episodes", false, "Get number of episodes")
-	flag.BoolVar(&commandMap.info, "info", false, "Get information of series")
-	flag.BoolVar(&commandMap.aired, "aired", false, "Get aired date of series")
+	flag.StringVar(&CommandMap.name, "name", "", "Write a name of series")
+	flag.StringVar(&CommandMap.seasonal, "seasonal", "", "Format: <SEASON> <YEAR>, blank gives the current season")
+	flag.BoolVar(&CommandMap.score, "score", false, "Get score of series")
+	flag.BoolVar(&CommandMap.rank, "rank", false, "Get rank of series")
+	flag.BoolVar(&CommandMap.episodes, "episodes", false, "Get number of episodes")
+	flag.BoolVar(&CommandMap.info, "info", false, "Get information of series")
+	flag.BoolVar(&CommandMap.aired, "aired", false, "Get aired date of series")
 
 	flag.Parse()
 }
@@ -158,7 +160,7 @@ func Search(siteInfo site) bool {
 	}
 
 	var genre string
-	if val, ok := siteInfo.Genre[commandMap.genre]; ok {
+	if val, ok := siteInfo.Genre[CommandMap.genre]; ok {
 		genre = siteInfo.Genre[val]
 	} else {
 		genre = siteInfo.Genre["0"]
@@ -166,7 +168,7 @@ func Search(siteInfo site) bool {
 	r := strings.NewReplacer("*genre*", genre)
 	search := r.Replace(siteInfo.Search)
 
-	searchURL := siteInfo.URL + search + strings.ToLower(commandMap.name)
+	searchURL := siteInfo.URL + search + strings.ToLower(CommandMap.name)
 	return sitesAvailable[siteInfo.Name](searchURL)
 
 }

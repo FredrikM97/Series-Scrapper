@@ -1,7 +1,7 @@
 package json
 
 import (
-	"encoding/json"
+	jsonImp "encoding/json"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -22,7 +22,7 @@ func file(db string, data interface{}) interface{} {
 
 	byteValue, _ := ioutil.ReadAll(file)
 
-	json.Unmarshal(byteValue, &data)
+	jsonImp.Unmarshal(byteValue, &data)
 
 	return data
 }

@@ -1,6 +1,8 @@
-package main
+package utils
 
-import "strings"
+import (
+	"strings"
+)
 
 func Address2string(address []string) string {
 	/*
