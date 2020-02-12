@@ -1,4 +1,4 @@
-package main
+package http
 
 import (
 	"fmt"
@@ -26,7 +26,8 @@ func GetContent(url string) (string, bool) {
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
-	body2string := string(body)
 
-	return body2string, false
+	return toString(body), false
 }
+
+func toString(data []byte) string { return string(data) }

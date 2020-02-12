@@ -1,4 +1,4 @@
-package main
+package json
 
 import (
 	"encoding/json"
@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func JSONHandler(db string, data interface{}) interface{} {
+func importData(db string, data interface{}) interface{} {
 	/*
 		Import data from database
 	*/

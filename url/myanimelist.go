@@ -1,10 +1,14 @@
-package main
+package url
 
 import (
+	"Series-Scrapper/http"
 	"fmt"
 	"regexp"
 )
 
+func init() {
+
+}
 func SearchMAL(searchURL string) bool {
 	/*
 		Search for series on MAL
@@ -13,7 +17,7 @@ func SearchMAL(searchURL string) bool {
 		* bool: No found-> false
 		* string:
 	*/
-	resp, err := GetContent(searchURL)
+	resp, err := http.GetContent(searchURL)
 	if err {
 		return false
 	}
@@ -36,7 +40,7 @@ func SearchMAL(searchURL string) bool {
 		name := Address2string(info)
 
 		if name == commandMap.name {
-			commandMap.url = info[0]
+			resultMap.url = info[0]
 			return true
 		}
 		seriesMap[name] = index

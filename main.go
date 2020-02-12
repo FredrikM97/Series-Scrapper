@@ -12,11 +12,12 @@ import (
 /*
 Structs
 */
-type Commands struct {
+type commands struct {
 	name, seasonal, url, genre              string
-	score, rank, episodes, info, aired, top bool
+	score, rank, episodes, info, aired, top bool // One of these bools must be true
 }
 type results struct {
+	url                                string
 	seasonal, genre, top               []string
 	score, rank, episodes, info, aired string
 }
@@ -31,6 +32,7 @@ type site struct {
 	Search string            `json:"search"`
 	Genre  map[string]string `json:"genre"`
 }
+type Map2func func(string) bool
 
 // Convert map value to function, return bool
 
@@ -38,13 +40,12 @@ type site struct {
 Global var
 */
 var DATABASE = "database/"
-var commandMap = new(Commands)
+var commandMap = new(commands)
+var resultMap = new(results)
 var sitesInfo sites
 var sitesAvailable = map[string]Map2func{
 	"myanimelist": SearchMAL,
 }
-
-type Map2func func(string) bool
 
 func main() {
 	/*
@@ -53,21 +54,17 @@ func main() {
 	fmt.Println("Starting system!")
 	setFlags()
 
-	data := JSONHandler(DATABASE+"sites.json", sitesInfo)
+	data := json.importData(DATABASE+"sites.json", sitesInfo)
 	mapstructure.Decode(data, &sitesInfo)
 
 	printDB(sitesInfo)
-	fmt.Println("derp1")
 	// Check input
 	if commandMap.name != "" {
 		check := checkParams()
-
+		fmt.Println("Is dis true=", commandMap.name)
 		if check {
-			fmt.Println("derp2")
 			site := sitesInfo.Sites[0] // TODO: Change so we check all availbile sites
 			success := Search(site)
-			fmt.Println("The check was:", success)
-
 			if success {
 				//getparameterValues(enabledParams)
 			}
@@ -90,10 +87,8 @@ func checkParams() bool {
 
 		//Get value of param
 		f := r.Field(i)
-		fmt.Println(paramExists)
 		if f.Kind() == reflect.Bool && reflect.ValueOf(true).Bool() == f.Bool() {
 			paramExists = true
-
 			continue
 		}
 
