@@ -1,6 +1,8 @@
 package main
 
 import (
+	"Series-Scrapper/json"
+	"Series-Scrapper/url"
 	"flag"
 	"fmt"
 	"reflect"
@@ -44,7 +46,7 @@ var commandMap = new(commands)
 var resultMap = new(results)
 var sitesInfo sites
 var sitesAvailable = map[string]Map2func{
-	"myanimelist": SearchMAL,
+	"myanimelist": url.SearchMAL,
 }
 
 func main() {
@@ -54,7 +56,7 @@ func main() {
 	fmt.Println("Starting system!")
 	setFlags()
 
-	data := json.importData(DATABASE+"sites.json", sitesInfo)
+	data := json.LoadFile(DATABASE+"sites.json", sitesInfo)
 	mapstructure.Decode(data, &sitesInfo)
 
 	printDB(sitesInfo)

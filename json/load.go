@@ -7,7 +7,7 @@ import (
 	"os"
 )
 
-func importData(db string, data interface{}) interface{} {
+func file(db string, data interface{}) interface{} {
 	/*
 		Import data from database
 	*/

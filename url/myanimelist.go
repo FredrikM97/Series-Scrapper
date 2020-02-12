@@ -37,7 +37,7 @@ func SearchMAL(searchURL string) bool {
 
 	// Fix series name and check if they same as requested name
 	for index, info := range addresses {
-		name := Address2string(info)
+		name := Strings.Address2string(info)
 
 		if name == commandMap.name {
 			resultMap.url = info[0]
