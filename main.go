@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strings"
 
+	"github.com/fatih/color"
 	"github.com/mitchellh/mapstructure"
 )
 
@@ -45,23 +46,24 @@ func main() {
 	/*
 		Init system from here
 	*/
-	fmt.Println("Starting system!")
+	//fmt.Println("Starting system!")
 	setFlags()
-
 	data := json.Open(DATABASE+"sites.json", sitesInfo)
 	mapstructure.Decode(data, &sitesInfo)
 
-	printDB(sitesInfo)
+	//printDB(sitesInfo)
 	// Check input
 	if gb.CommandMap.Name != "" {
 		check := checkParams()
 		if check {
 			site := sitesInfo.Sites[0] // TODO: Change so we check all availbile sites
-			success := Search(site)
-			if success {
-				//getparameterValues()
-			}
+			_ = Search(site)
 
+		} else {
+			r := color.New(color.FgRed)
+			r.Println("-----------------------------------------" +
+				"\nParameter needed in order to get info!\n" +
+				"-----------------------------------------")
 		}
 	} else if gb.CommandMap.Seasonal != "" {
 
@@ -147,8 +149,16 @@ func Search(siteInfo site) bool {
 
 }
 func print_params(params []string) {
-	for item := range params {
-		fmt.Println(item)
+	b := color.New(color.FgBlue).Add(color.Bold)
+	//r := color.New(color.FgRed)
+	g := color.New(color.FgGreen)
+
+	fmt.Println("---------------------------\n")
+	b.Println(gb.CommandMap.Name)
+	fmt.Println("\n---------------------------")
+	for _, item := range params {
+		g.Println(item)
+		fmt.Println("---------------------------")
 	}
 
 }

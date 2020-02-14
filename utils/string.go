@@ -4,14 +4,14 @@ import (
 	"strings"
 )
 
-func Address2string(address []string) string {
+func Address2string(address string) string {
 	/*
 		Extract name from list to string and remove parameters that shouldnt be included
-		Params:	[]string
+		Params:	string
 		Return: string
 	*/
 	r := strings.NewReplacer("_", " ", "  ", " ")
-	serieAddress := address[1]
+	serieAddress := address
 	oldAddress := ""
 
 	for oldAddress != serieAddress {

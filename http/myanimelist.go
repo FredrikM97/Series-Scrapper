@@ -19,11 +19,11 @@ type myAnimeList struct {
 }
 
 var MyAnimeList = myAnimeList{
-	score:    `<span itemprop="ratingValue">(.|\n)*?</span>`,
-	rank:     `<span class="dark_text">Ranked:</span>(.|\n)*?<sup>`,
-	episodes: `<span class="dark_text">Episodes:</span>(.|\n)*?</div>`,
-	info:     `<meta property="og:description" content="(.|\n)*?">`,
-	aired:    `<span class="dark_text">Aired:</span>(.|\n)*?</div>`,
+	score:    `<span itemprop="ratingValue">((.|\n)*?)</span>`,
+	rank:     `<span class="dark_text">Ranked:</span>\n  ((.|\n)*?)<sup>`,
+	episodes: `<span class="dark_text">Episodes:</span>((.|\n)*?)</div>`,
+	info:     `<meta property="og:description" content="((.|\n)*?)">`,
+	aired:    `<span class="dark_text">Aired:</span>((.|\n)*?)</div>`,
 	//Top =
 	genre: `<span class="dark_text">Genres:</span>||</div>`,
 	//Seasonal =
@@ -32,8 +32,7 @@ var siteVars = gb.WebsiteVars{
 	URLTop:       `https://myanimelist.net/topanime.php?type=bypopularity`,
 	URLSeason:    `https://myanimelist.net/anime/season`,
 	RegexArticle: `<h2 id="anime">Anime</h2>(.|\n)*?</article>`,
-	RegexAdress: `<div class="picSurround di-tc thumb">
-	<a href="https://myanimelist.net/anime/[0-9]*/([^"/]*)`,
+	RegexAdress:  `<div class="picSurround di-tc thumb">([\s\S]*?)<a href="(https://myanimelist.net/anime/[0-9]*/([^"/]*))`,
 	/*TODO: The problem is here*/
 }
 
@@ -45,35 +44,37 @@ func (d myAnimeList) Search(searchURL string, contentName string) ([]string, boo
 		* bool: No found-> false
 		* string:
 	*/
+	var err bool
 	var params []string
-	response, err := GetContent(searchURL)
+	MyAnimeList.response, err = GetContent(searchURL)
 	if err {
 		return params, false
 	}
 
 	// Regex to find wanted info in data_response
+	//articleRegex := `<h2 id="anime">Anime</h2>(.|\n)*?</article>`
+	//addressRegex := `<div class="picSurround di-tc thumb">
+	//<a href="https://myanimelist.net/anime/[0-9]*/([^"/]*)`
 
-	re := regexp.MustCompile(siteVars.RegexAdress)
-	queue := re.FindAllString(string(response), -1)[0] //First index is anime
+	re := regexp.MustCompile(siteVars.RegexArticle)
+	queue := re.FindAllString(string(MyAnimeList.response), -1)[0] //First index is anime
 
 	re = regexp.MustCompile(siteVars.RegexAdress)
 	addresses := re.FindAllStringSubmatch(queue, -1)
-
+	//fmt.Println("Current addresses", addresses)
 	seriesMap := make(map[string]int)
 
 	// Fix series name and check if they same as requested name
 	var url string
 	for index, info := range addresses {
-		fmt.Println("Data:", index, info, contentName)
-		name := utils.Address2string(info)
+		name := utils.Address2string(info[3])
 
 		if name == contentName {
-			url = info[0]
-			//gb.ResultMap.URL = url
-			fmt.Println("I return true", url)
+			url := info[2]
+
 			MyAnimeList.response, _ = UpdateResponse(url)
 			params := GetParameterValues(MyAnimeList)
-			fmt.Println("These are my params", params)
+
 			return params, true
 		}
 		seriesMap[name] = index
@@ -111,26 +112,26 @@ func (d myAnimeList) GetTop() (string, bool) {
 
 func (d myAnimeList) GetScore() string {
 	re := regexp.MustCompile(MyAnimeList.score)
-	queue := re.FindAllString(string(MyAnimeList.response), -1)[0] //First index is anime
-	return queue
+	queue := re.FindAllStringSubmatch(string(MyAnimeList.response), -1)[0] //First index is anime
+	return queue[1]
 }
 func (d myAnimeList) GetRank() string {
 	re := regexp.MustCompile(MyAnimeList.rank)
-	queue := re.FindAllString(string(MyAnimeList.response), -1)[0] //First index is anime
-	return queue
+	queue := re.FindAllStringSubmatch(string(MyAnimeList.response), -1)[0] //First index is anime
+	return queue[1]
 }
 func (d myAnimeList) GetEpisodes() string {
 	re := regexp.MustCompile(MyAnimeList.episodes)
-	queue := re.FindAllString(string(MyAnimeList.response), -1)[0] //First index is anime
-	return queue
+	queue := re.FindAllStringSubmatch(string(MyAnimeList.response), -1)[0] //First index is anime
+	return queue[1]
 }
 func (d myAnimeList) GetInfo() string {
 	re := regexp.MustCompile(MyAnimeList.info)
-	queue := re.FindAllString(string(MyAnimeList.response), -1)[0] //First index is anime
-	return queue
+	queue := re.FindAllStringSubmatch(string(MyAnimeList.response), -1)[0] //First index is anime
+	return queue[1]
 }
 func (d myAnimeList) GetAired() string {
 	re := regexp.MustCompile(MyAnimeList.aired)
-	queue := re.FindAllString(string(MyAnimeList.response), -1)[0] //First index is anime
-	return queue
+	queue := re.FindAllStringSubmatch(string(MyAnimeList.response), -1)[0] //First index is anime
+	return queue[1]
 }

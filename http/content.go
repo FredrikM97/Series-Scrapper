@@ -48,23 +48,29 @@ func GetParameterValues(model gb.Website) []string {
 	//score, rank, episodes, info, aired
 	var params []string
 	if gb.CommandMap.Score {
-		params = append(params, model.GetScore())
+		data := `Score: ` + model.GetScore()
+		params = append(params, data)
 	}
 	if gb.CommandMap.Rank {
-		params = append(params, model.GetRank())
+		data := `Rank: ` + model.GetRank()
+		params = append(params, data)
 	}
 	if gb.CommandMap.Episodes {
-		params = append(params, model.GetEpisodes())
+		data := `Episodes: ` + model.GetEpisodes()
+		params = append(params, data)
 	}
 	if gb.CommandMap.Info {
-		params = append(params, model.GetInfo())
+		data := `Info: ` + model.GetInfo()
+		params = append(params, data)
 	}
 	if gb.CommandMap.Aired {
-		params = append(params, model.GetAired())
+		data := `Aired: ` + model.GetAired()
+		params = append(params, data)
 	}
 	if gb.CommandMap.Top {
 		top, _ := model.GetTop()
-		params = append(params, top)
+		data := `Top series: ` + top
+		params = append(params, data)
 	}
 
 	return params
