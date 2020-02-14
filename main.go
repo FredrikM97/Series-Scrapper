@@ -53,21 +53,20 @@ func main() {
 
 	//printDB(sitesInfo)
 	// Check input
-	if gb.CommandMap.Name != "" {
-		check := checkParams()
-		if check {
-			site := sitesInfo.Sites[0] // TODO: Change so we check all availbile sites
-			_ = Search(site)
+	site := sitesInfo.Sites[0] // TODO: Change so we check all availbile sites
 
-		} else {
-			r := color.New(color.FgRed)
-			r.Println("-----------------------------------------" +
-				"\nParameter needed in order to get info!\n" +
-				"-----------------------------------------")
-		}
-	} else if gb.CommandMap.Seasonal != "" {
+	//check := checkParams()
+	//if check {
 
-	}
+	_ = Search(site)
+
+	/*} else {
+		r := color.New(color.FgRed)
+		r.Println("-----------------------------------------" +
+			"\nParameter needed in order to get info!\n" +
+			"-----------------------------------------")
+	}*/
+
 }
 func checkParams() bool {
 	/*
@@ -82,7 +81,7 @@ func checkParams() bool {
 		//Get value of param
 		f := r.Field(i)
 
-		if f.Kind() == reflect.Bool {
+		if f.Kind() == reflect.Bool || f.Kind() == reflect.Array {
 			if reflect.ValueOf(true).Bool() == f.Bool() {
 				paramExists = true
 				return paramExists
@@ -109,6 +108,12 @@ func setFlags() {
 	flag.Parse()
 }
 
+func setColors() {
+	/*
+		Init colors for print
+	*/
+
+}
 func printDB(sitesInfo sites) {
 	/*
 		Print info from the database
@@ -133,6 +138,8 @@ func Search(siteInfo site) bool {
 	}
 
 	var genre string
+	var params []string
+
 	if val, ok := siteInfo.Genre[gb.CommandMap.Genre]; ok {
 		genre = siteInfo.Genre[val]
 	} else {
@@ -142,10 +149,15 @@ func Search(siteInfo site) bool {
 	search := r.Replace(siteInfo.Search)
 
 	searchURL := siteInfo.URL + search + strings.ToLower(gb.CommandMap.Name)
-	params, success := SitesAvailable[siteInfo.Name].Search(searchURL, gb.CommandMap.Name)
 
+	if gb.CommandMap.Name != "" {
+
+		params, _ = SitesAvailable[siteInfo.Name].Search(searchURL, gb.CommandMap.Name)
+	} else if gb.CommandMap.Seasonal == "" || len(gb.CommandMap.Seasonal) > 0 {
+		params, _ = SitesAvailable[siteInfo.Name].GetSeasonal(gb.CommandMap.Seasonal)
+	}
 	print_params(params)
-	return success
+	return true
 
 }
 func print_params(params []string) {

@@ -1,10 +1,10 @@
 package http
 
 import (
-	gb "Series-Scrapper/global"
 	"Series-Scrapper/utils"
 	"fmt"
 	"regexp"
+	"strings"
 )
 
 type myAnimeList struct {
@@ -18,6 +18,15 @@ type myAnimeList struct {
 	url      string
 }
 
+type vars struct {
+	URLTop        string
+	URLSeason     string
+	searchArticle string
+	searchAdress  string
+	topArticle    string
+	topAddress    string
+}
+
 var MyAnimeList = myAnimeList{
 	score:    `<span itemprop="ratingValue">((.|\n)*?)</span>`,
 	rank:     `<span class="dark_text">Ranked:</span>\n  ((.|\n)*?)<sup>`,
@@ -28,11 +37,14 @@ var MyAnimeList = myAnimeList{
 	genre: `<span class="dark_text">Genres:</span>||</div>`,
 	//Seasonal =
 }
-var siteVars = gb.WebsiteVars{
-	URLTop:       `https://myanimelist.net/topanime.php?type=bypopularity`,
-	URLSeason:    `https://myanimelist.net/anime/season`,
-	RegexArticle: `<h2 id="anime">Anime</h2>(.|\n)*?</article>`,
-	RegexAdress:  `<div class="picSurround di-tc thumb">([\s\S]*?)<a href="(https://myanimelist.net/anime/[0-9]*/([^"/]*))`,
+var siteVars = vars{
+	URLTop:        `https://myanimelist.net/topanime.php?type=bypopularity`,
+	URLSeason:     `https://myanimelist.net/anime/season`,
+	searchArticle: `<h2 id="anime">Anime</h2>(.|\n)*?</article>`,
+	searchAdress:  `<div class="picSurround di-tc thumb">([\s\S]*?)<a href="(https://myanimelist.net/anime/[0-9]*/([^"/]*))`,
+
+	topArticle: `<div class="anime-header">TV \(New\)</div>(.|\n)*?<div class="anime-header">`,
+	topAddress: `<p class="title-text">([\s\S]*?)<a href="(https://myanimelist.net/anime/[0-9]*/([^"/]*))"`,
 	/*TODO: The problem is here*/
 }
 
@@ -50,22 +62,15 @@ func (d myAnimeList) Search(searchURL string, contentName string) ([]string, boo
 	if err {
 		return params, false
 	}
-
-	// Regex to find wanted info in data_response
-	//articleRegex := `<h2 id="anime">Anime</h2>(.|\n)*?</article>`
-	//addressRegex := `<div class="picSurround di-tc thumb">
-	//<a href="https://myanimelist.net/anime/[0-9]*/([^"/]*)`
-
-	re := regexp.MustCompile(siteVars.RegexArticle)
-	queue := re.FindAllString(string(MyAnimeList.response), -1)[0] //First index is anime
-
-	re = regexp.MustCompile(siteVars.RegexAdress)
-	addresses := re.FindAllStringSubmatch(queue, -1)
-	//fmt.Println("Current addresses", addresses)
-	seriesMap := make(map[string]int)
-
-	// Fix series name and check if they same as requested name
 	var url string
+	var seriesMap = make(map[string]int)
+
+	re := regexp.MustCompile(siteVars.searchArticle)
+	queue := re.FindAllString(string(MyAnimeList.response), -1)[0]
+
+	re = regexp.MustCompile(siteVars.searchAdress)
+	addresses := re.FindAllStringSubmatch(queue, -1)
+
 	for index, info := range addresses {
 		name := utils.Address2string(info[3])
 
@@ -79,13 +84,12 @@ func (d myAnimeList) Search(searchURL string, contentName string) ([]string, boo
 		}
 		seriesMap[name] = index
 	}
-	sortedMap := utils.OnKeyValue(seriesMap)
 
 	// If series not found, recommend similar series
 
 	if url == "" {
 		fmt.Println("Could not find series! Did you mean: \n-------------------")
-		for _, k := range sortedMap {
+		for _, k := range utils.OnKeyValue(seriesMap) {
 			fmt.Printf("%v: %v\n", k.Value, k.Key)
 		}
 
@@ -93,13 +97,45 @@ func (d myAnimeList) Search(searchURL string, contentName string) ([]string, boo
 
 	return params, false
 }
-func (d myAnimeList) GetSeasonal() (string, bool) {
+func (d myAnimeList) GetSeasonal(data string) ([]string, bool) {
 	//https://myanimelist.net/anime/season/2020/spring
-	response, err := GetContent(siteVars.URLSeason)
-	if err {
-		return "", false
+	var err bool
+	var params []string
+	// If no season given then default to current season
+	if data == "" {
+		MyAnimeList.response, err = GetContent(siteVars.URLSeason)
+	} else {
+		splitData := strings.SplitN(data, " ", -1)
+		season := splitData[0]
+		year := splitData[1]
+
+		MyAnimeList.response, err = GetContent(siteVars.URLSeason + "/" + year + "/" + season)
 	}
-	return response, true
+
+	if err {
+		return params, false
+	}
+	re := regexp.MustCompile(siteVars.topArticle)
+	queue := re.FindAllString(string(MyAnimeList.response), -1)[0]
+
+	re = regexp.MustCompile(siteVars.topAddress)
+	addresses := re.FindAllStringSubmatch(queue, -1)
+	//fmt.Println("Current addresses", addresses)
+	seriesMap := make(map[string]int)
+
+	for index, info := range addresses {
+		name := utils.Address2string(info[3])
+		seriesMap[name] = index
+	}
+	sortedMap := utils.OnKeyValue(seriesMap)
+
+	var vals string
+	for _, k := range sortedMap {
+		vals = vals + "\n" + " " + k.Key
+		//fmt.Printf("%v: %v\n", k.Value, k.Key)
+	}
+	params = append(params, vals)
+	return params, true
 }
 func (d myAnimeList) GetTop() (string, bool) {
 

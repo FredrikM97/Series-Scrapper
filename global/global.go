@@ -20,13 +20,7 @@ type Website interface {
 	GetAired() string
 	GetRank() string
 	GetEpisodes() string
-}
-
-type WebsiteVars struct {
-	URLTop       string
-	URLSeason    string
-	RegexArticle string
-	RegexAdress  string
+	GetSeasonal(string) ([]string, bool)
 }
 
 var CommandMap = *new(commands)
